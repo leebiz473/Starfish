@@ -1,0 +1,46 @@
+<?xml version="1.0"?>
+<ruleset name="Lumen Boilerplate PHPMD rule set"
+         xmlns="http://pmd.sf.net/ruleset/1.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://pmd.sf.net/ruleset/1.0.0
+                     http://pmd.sf.net/ruleset_xml_schema.xsd"
+         xsi:noNamespaceSchemaLocation="http://pmd.sf.net/ruleset_xml_schema.xsd">
+    <description>
+        PHP Mess Detector ruleset
+    </description>
+
+    <rule ref="rulesets/cleancode.xml">
+        <exclude name="StaticAccess"/>
+    </rule>
+
+    <rule ref="rulesets/codesize.xml">
+        <exclude name="CyclomaticComplexity"/>
+        <exclude name="NPathComplexity"/>
+        <exclude name="ExcessiveClassComplexity"/>
+        <exclude name="TooManyMethods"/>
+        <exclude name="TooManyPublicMethods"/>
+        <exclude name="ExcessivePublicCount"/>
+    </rule>
+
+    <rule ref="rulesets/naming.xml">
+        <exclude name="ShortVariable"/>
+        <exclude name="BooleanGetMethodName"/>
+        <exclude name="CyclomaticComplexity"/>
+        <exclude name="LongVariable"/>
+    </rule>
+
+    <rule ref="rulesets/naming.xml/ShortVariable">
+        <properties>
+            <property name="exceptions" value="id,q,i,j,v,e,f,fp,x" />
+        </properties>
+    </rule>
+
+    <rule ref="rulesets/unusedcode.xml"/>
+
+    <exclude-pattern>vendor</exclude-pattern>
+    <exclude-pattern>database</exclude-pattern>
+    <exclude-pattern>node_modules</exclude-pattern>
+    <exclude-pattern>.phpstorm.meta.php</exclude-pattern>
+    <exclude-pattern>_ide_helper.php</exclude-pattern>
+
+</ruleset>
