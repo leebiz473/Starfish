@@ -57,6 +57,16 @@ services:
       com.starfish.purpose: development
     networks:
       - starfish-network
+
+  composer:
+    build:
+      context: .
+      dockerfile: .docker/composer/Dockerfile
+    container_name: starfish-composer
+    volumes:
+      -./ssr:/app
+    command: ["composer", "install"]
+
 networks:
   starfish-network:
     driver: bridge

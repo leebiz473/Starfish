@@ -20,20 +20,6 @@ RUN apt-get update && apt-get install -y \
 # Set the working directory inside the container
 WORKDIR /var/www/app
 
-# Copy only composer files first (better caching for dependencies)
-COPY composer.json composer.lock /var/www/app/
-
-# Install dependencies
-RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer \
-    && composer clear-cache \
-    && composer install --no-scripts --no-dev --prefer-dist
-
-# Copy the rest of the application files
-COPY . /var/www/app
-
-# Ensure PHPUnit is executable
-RUN chmod +x vendor/bin/phpunit
-
 # Add healthcheck and ensure that it is excuteable
 COPY .docker/php/health-check.sh /usr/local/bin/health-check.sh
 RUN chmod +x /usr/local/bin/health-check.sh
