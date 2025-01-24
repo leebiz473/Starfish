@@ -1,6 +1,8 @@
 .git
-.docker/*
+!.docker/*.ini
+!.docker/*.conf
 Dockerfile
 docker-compose.yml
 node_modules
-vendor
+!vendor/**/phpunit
+data/**
