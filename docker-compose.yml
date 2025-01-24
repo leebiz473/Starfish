@@ -27,6 +27,21 @@ services:
     networks:
       - starfish-network
 
+  mysql:
+    build:
+      context: .
+      dockerfile: .docker/mysql/Dockerfile
+    container_name: starfish-mysql
+    hostname: mysql
+    volumes:
+      - mysql-data:/var/lib/mysql
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+
   php:
     build:
       context: .
@@ -70,3 +85,5 @@ services:
 networks:
   starfish-network:
     driver: bridge
+volumes:
+  mysql-data:
