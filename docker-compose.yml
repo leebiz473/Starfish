@@ -13,7 +13,7 @@ services:
       - "80:80"
       - "443:443"
     volumes:
-      - .:/var/www/app
+      - ./ssr:/var/www/app
     logging:
       driver: "json-file"
       options:
@@ -34,7 +34,7 @@ services:
     container_name: starfish-php
     hostname: php
     volumes:
-      - .:/var/www/app
+      - ./ssr:/var/www/app:delegated
     ports:
       - "9000:9000"
     healthcheck:
