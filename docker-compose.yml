@@ -13,7 +13,7 @@ services:
       - "80:80"
       - "443:443"
     volumes:
-      - ./ssr:/var/www/app
+      - ./laravel:/var/www/app
     logging:
       driver: "json-file"
       options:
@@ -37,6 +37,8 @@ services:
       - mysql-data:/var/lib/mysql
     ports:
       - "3306:3306"
+    env_file:
+      - .env
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
       MYSQL_DATABASE: ${MYSQL_DATABASE}
@@ -49,7 +51,7 @@ services:
     container_name: starfish-php
     hostname: php
     volumes:
-      - ./ssr:/var/www/app:delegated
+      - ./laravel:/var/www/app:delegated
     ports:
       - "9000:9000"
     healthcheck:
@@ -79,8 +81,22 @@ services:
       dockerfile: .docker/composer/Dockerfile
     container_name: starfish-composer
     volumes:
-      -./ssr:/app
-    command: ["composer", "install"]
+      - ./laravel:/var/www/app
+
+  artisan:
+    build:
+      context: .
+      dockerfile: .docker/php/Dockerfile
+    volumes:
+      - ./laravel:/var/www/app
+    entrypoint: [ "php", "/var/www/app/artisan"]
+
+  npm:
+    image: node:14
+    working_dir: /var/www/app
+    volumes:
+      - ./laravel:/var/www/app
+    entrypoint: ["npm"]
 
 networks:
   starfish-network:
