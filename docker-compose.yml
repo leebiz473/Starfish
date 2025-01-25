@@ -5,6 +5,7 @@ networks:
 
 # start the services section
 services:
+
   nginx:
     build:
       context: .
@@ -30,3 +31,22 @@ services:
       backend:
         aliases:
           - ${APP_HOST}
+
+  php:
+    build:
+      context: .
+      dockerfile: .docker/php/fpm/Dockerfile
+      args:
+        - APP_CODE_PATH=${APP_CODE_PATH_CONTAINER}
+        - APP_GROUP=${APP_GROUP}
+        - APP_GROUP_ID=${APP_GROUP_ID}
+        - APP_USER=${APP_USER}
+        - APP_USER_ID=${APP_USER_ID}
+        - TZ=${TIMEZONE}
+        - TARGET_PHP_VERSION=${PHP_VERSION}
+    container_name: starfish-php
+    hostname: php
+    volumes:
+      - ${APP_CODE_PATH_HOST}:${APP_CODE_PATH_CONTAINER}
+    networks:
+      - backend
