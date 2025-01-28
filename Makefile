@@ -3,10 +3,19 @@ ifneq ("$(wildcard .env)","")
 	include .env
 endif
 
+# Directory where the SSH key is located (APP_KEY_DIR from env)
+APP_KEY_DIR ?= .docker/php/app/.ssh
+
 
 DEFAULT_GOAL := help
 help:
 	@awk 'BEGIN {FS = ":.*##"; printf "\nUsage:\n  make \033[36m<target>\033[0m\n"} /^[a-zA-Z0-9_-]+:.*?##/ { printf "  \033[36m%-27s\033[0m %s\n", $$1, $$2 } /^##@/ { printf "\n\033[1m%s\033[0m\n", substr($$0, 5) } ' $(MAKEFILE_LIST)
+
+.PHONY: generate_key
+generate_key: ## Generate SSH key if it doesnt exist
+	echo "Generating SSH key..."; \
+    		chmod +x generate_ssh_key.sh; \
+    		./generate_ssh_key.sh;
 
 .PHONY: docker-status
 docker-status: ## Check Docker container status
@@ -44,4 +53,3 @@ docker-refresh: ## Take down and rebuild docker containers from scratch
     docker-compose build --no-cache; \
     docker-compose up -d --build --force-recreate; \
     docker ps -a
-
