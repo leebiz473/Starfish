@@ -50,3 +50,23 @@ services:
       - ${APP_CODE_PATH_HOST}:${APP_CODE_PATH_CONTAINER}
     networks:
       - backend
+
+  app:
+    build:
+      context: .
+      dockerfile: .docker/php/app/Dockerfile
+      args:
+        - APP_CODE_PATH=${APP_CODE_PATH_CONTAINER}
+        - APP_GROUP=${APP_GROUP}
+        - APP_GROUP_ID=${APP_GROUP_ID}
+        - APP_USER=${APP_USER}
+        - APP_USER_ID=${APP_USER_ID}
+        - TZ=${TIMEZONE}
+        - TARGET_PHP_VERSION=${PHP_VERSION}
+    container_name: starfish-app
+    volumes:
+      - ${APP_CODE_PATH_HOST}:${APP_CODE_PATH_CONTAINER}
+    ports:
+      - "${WORKSPACE_HOST_SSH_PORT}:22"
+    networks:
+      - backend

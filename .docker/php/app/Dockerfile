@@ -20,28 +20,41 @@ RUN /tmp/scripts/create-user.sh ${APP_USER} ${APP_GROUP} ${APP_USER_ID} ${APP_GR
 RUN /tmp/scripts/install-php-extensions.sh
 RUN /tmp/scripts/install-software.sh
 
+# set up ssh
+RUN apt-get update -yqq && apt-get install -yqq openssh-server \
+ && mkdir /var/run/sshd \
+;
+
+# add default public key to authorized_keys
+USER ${APP_USER}
+COPY ./.docker/php/app/.ssh/appkey.pub /tmp/appkey.pub
+RUN mkdir -p ~/.ssh \
+ && cat /tmp/appkey.pub >> ~/.ssh/authorized_keys \
+ && chown -R ${APP_USER}: ~/.ssh \
+ && chmod 700 ~/.ssh \
+ && chmod 600 ~/.ssh/authorized_keys \
+;
+
+USER root
+
 ## php config
 COPY ./.docker/php/conf.d/*  /usr/local/etc/php/conf.d/
-
-## php-fpm pool config
-COPY ./.docker/php/fpm/conf.d/* /usr/local/etc/php-fpm.d
-RUN /tmp/scripts/modify-config.sh /usr/local/etc/php-fpm.d/fpm-app.conf \
-    "__APP_USER" \
-    "${APP_USER}" \
- && /tmp/scripts/modify-config.sh /usr/local/etc/php-fpm.d/fpm-app.conf \
-    "__APP_GROUP" \
-    "${APP_GROUP}" \
-;
 
 ## Set Workdir
 ARG APP_CODE_PATH="/var/www/app"
 WORKDIR "$APP_CODE_PATH"
 
+## Add custom entrypoint
+RUN mkdir -p /bin/docker-entrypoint/ \
+    && cp /tmp/scripts/docker-entrypoint/* /bin/docker-entrypoint/ \
+    && chmod +x -R /bin/docker-entrypoint \
+    ;
+
 ## Cleanup build
 RUN /tmp/scripts/cleanup.sh
 
-# Expose port 9000 for PHP-FPM
-EXPOSE 9000
+## Change message of the day
+RUN echo "Today is $(date "+%A, %B %d, %Y %H:%M:%S")" > /etc/motd
 
-# Use PHP-FPM as the main process
-CMD ["php-fpm"]
+# @see https://docs.docker.com/engine/examples/running_ssh_service/
+ENTRYPOINT ["/bin/docker-entrypoint/resolve-docker-host-ip.sh", "/usr/sbin/sshd", "-D"]
