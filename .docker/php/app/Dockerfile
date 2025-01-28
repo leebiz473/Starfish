@@ -44,6 +44,20 @@ COPY ./.docker/php/conf.d/*  /usr/local/etc/php/conf.d/
 ARG APP_CODE_PATH="/var/www/app"
 WORKDIR "$APP_CODE_PATH"
 
+# Copy only composer files first (better caching for dependencies)
+COPY ./www/composer.json $APP_CODE_PATH
+COPY ./www/composer.lock $APP_CODE_PATH
+COPY ./www/artisan $APP_CODE_PATH
+COPY ./www $APP_CODE_PATH
+
+# Install composer
+RUN curl -s https://getcomposer.org/installer | php \
+    && mv composer.phar /usr/local/bin/composer \
+    && composer install \
+    ;
+
+RUN chmod -R 775 $APP_CODE_PATH/storage $APP_CODE_PATH/bootstrap/cache
+
 ## Add custom entrypoint
 RUN mkdir -p /bin/docker-entrypoint/ \
     && cp /tmp/scripts/docker-entrypoint/* /bin/docker-entrypoint/ \
