@@ -590,3 +590,4 @@ GitHub.sublime-settings
 # Application files
 .env
 .docker/php/app/.ssh/*
+!.docker/php/app/.ssh/.gitkeep
