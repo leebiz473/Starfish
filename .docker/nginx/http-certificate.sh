@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 # Define variables
 #DOMAIN="starfish.envx"
