@@ -40,16 +40,16 @@ docker-down: ## Take down docker containers
 .PHONY: docker-restart
 docker-restart: ## Take down and restart docker containers
 	docker-compose down --remove-orphans; \
-    docker container prune -f;  \
-    docker image prune --all -f; \
     docker-compose up -d --build --force-recreate; \
     docker ps -a
 
 .PHONY: docker-refresh
 docker-refresh: ## Take down and rebuild docker containers from scratch
-	docker-compose down --remove-orphans; \
-    docker container prune -f; \
-    docker image prune --all -f; \
-    docker-compose build --no-cache; \
-    docker-compose up -d --build --force-recreate; \
+	docker-compose down --remove-orphans;
+	docker builder prune -f; \
+	docker container prune -f; \
+	docker volume prune -f; \
+	docker image prune --all -f; \
+	docker-compose build --no-cache; \
+	docker-compose up -d --build --force-recreate; \
     docker ps -a
