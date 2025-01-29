@@ -48,6 +48,7 @@ services:
     hostname: php
     volumes:
       - ${APP_CODE_PATH_HOST}:${APP_CODE_PATH_CONTAINER}
+      - vendor_data:${APP_CODE_PATH_CONTAINER}/vendor
     networks:
       - backend
 
@@ -66,7 +67,12 @@ services:
     container_name: starfish-app
     volumes:
       - ${APP_CODE_PATH_HOST}:${APP_CODE_PATH_CONTAINER}
+      - vendor_data:${APP_CODE_PATH_CONTAINER}/vendor
     ports:
       - "${WORKSPACE_HOST_SSH_PORT}:22"
     networks:
       - backend
+
+volumes:
+  vendor_data:
+    driver: local
