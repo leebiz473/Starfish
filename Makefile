@@ -31,11 +31,15 @@ docker-start: ## Start up docker containers
 
 .PHONY: docker-up
 docker-up: ## Build up docker containers
-	docker-compose up -d --build --force-recreate
+	$(DOCKER_COMPOSE) up -d --build --force-recreate $(DOCKER_SERVICE_NAME)
 
 .PHONY: docker-down
 docker-down: ## Take down docker containers
-	docker-compose down --remove-orphans # Clean up stopped containers
+	docker-compose down --remove-orphans; \
+	docker builder prune -f; \
+	docker container prune -f; \
+	docker volume prune -f; \
+	docker image prune --all -f; \
 
 .PHONY: docker-restart
 docker-restart: ## Take down and restart docker containers
