@@ -6,7 +6,7 @@
 # Retrieve the domain name from the environment variable
 DOMAIN=${DOMAIN_NAME}
 CERT_DIR="/etc/nginx/certs"
-NGINX_CONF="/etc/nginx/sites-available/default.conf"
+NGINX_CONF="/etc/nginx/conf.d/default.conf"
 KEY_FILE="${CERT_DIR}/${DOMAIN}.key"
 CERT_FILE="${CERT_DIR}/${DOMAIN}.crt"
 
