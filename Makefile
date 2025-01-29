@@ -53,3 +53,8 @@ docker-refresh: ## Take down and rebuild docker containers from scratch
 	docker-compose build --no-cache; \
 	docker-compose up -d --build --force-recreate; \
     docker ps -a
+
+.PHONY: docker-rebuild
+docker-rebuild: ## Rebuild containers after failure
+	docker-compose up -d --build; \
+    docker ps -a
