@@ -32,6 +32,22 @@ services:
         aliases:
           - ${APP_HOST}
 
+  php:
+    build:
+      context: .
+      dockerfile: .docker/php/Dockerfile
+      args:
+        - ALPINE_VERSION=3.15
+        - APP_CODE_PATH=${APP_CODE_PATH_CONTAINER?}
+        - APP_GROUP_ID=${APP_GROUP_ID?}
+        - APP_GROUP_NAME=${APP_GROUP_NAME?}
+        - APP_USER_ID=${APP_USER_ID?}
+        - APP_USER_NAME=${APP_USER_NAME?}
+        - TARGET_PHP_VERSION=${PHP_VERSION?}
+        - APP_ENV=${APP_ENV?}
+    container_name: starfish-php
+    hostname: php
+
   php-fpm:
     build:
       context: .
