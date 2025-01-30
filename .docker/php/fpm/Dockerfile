@@ -21,23 +21,24 @@ RUN apk add --no-cache  \
     php-redis \
     php-xdebug;
 #----------------------------------------------------------------
-#----------------------------------------------------------------
 ## Add PHP-FPM pool configuration
-#COPY ./.docker/php/fpm/conf.d/*  /usr/local/etc/php/conf.d/
+COPY ./.docker/php/fpm/conf.d/www.conf  /etc/php82/php-fpm.d/www.conf
 #----------------------------------------------------------------
-#ARG PHP_VERSION
-#----------------------------------------------------------------
-## Modify listen directive in the www.conf file
-#RUN sed -i "s|^listen =.*|listen = /var/run/php-fpm.sock|" /etc/php/www.conf && \
-#    sed -i "s|^listen.owner =.*|listen.owner = nginx|" /etc/php/www.conf && \
-#    sed -i "s|^listen.group =.*|listen.group = nginx|" /etc/php/www.conf && \
-#    sed -i "s|^listen.mode =.*|listen.mode = 0660|" /etc/php/www.conf
-#----------------------------------------------------------------
-# /etc/php82/php-fpm.d/www.conf
+##
+USER $APP_USER_NAME
 #----------------------------------------------------------------
 ## Set working directory
 ARG APP_CODE_PATH="/var/www/app"
 WORKDIR "$APP_CODE_PATH"
+#----------------------------------------------------------------
+## Copy the Composer dependencies
+#----------------------------------------------------------------
+COPY ./www/composer.json  $APP_CODE_PATH
+COPY ./www/composer.lock $APP_CODE_PATH
+#----------------------------------------------------------------
+## @todo move this to a composer utility container
+## Run the Composer install without additional scripts
+RUN composer install --no-scripts
 #----------------------------------------------------------------
 # Expose port 9000 for PHP-FPM
 EXPOSE 9000
