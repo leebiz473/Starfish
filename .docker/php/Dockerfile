@@ -65,7 +65,7 @@ RUN apk update && \
             ca-certificates  \
             php${PHP_VERSION} \
             php${PHP_VERSION}-cli \
-            php${PHP_VERSION}-fpm \
+            php${PHP_VERSION}-session \
             php${PHP_VERSION}-mbstring \
             php${PHP_VERSION}-pdo \
             php${PHP_VERSION}-pdo_mysql \
@@ -103,9 +103,6 @@ COPY ./.docker/php/conf.d/app-${APP_ENV}.ini  /usr/local/etc/php/conf.d/
 COPY ./.docker/php/.bashrc /home/${APP_USER_NAME}/.bashrc
 COPY ./.docker/php/.bashrc /root/.bashrc
 #----------------------------------------------------------------
-##
-WORKDIR $APP_CODE_PATH
-#----------------------------------------------------------------
 RUN apk add --no-cache --update \
         mysql-client \
         redis
@@ -117,9 +114,5 @@ RUN apk add --no-cache \
     git \
     unzip
 #----------------------------------------------------------------
-## Download and install Composer
-RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
-
-#----------------------------------------------------------------
-## Verify Composer installation
-RUN composer --version
+##
+WORKDIR $APP_CODE_PATH
