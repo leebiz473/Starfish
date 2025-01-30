@@ -103,8 +103,8 @@ services:
       dockerfile: .docker/node/Dockerfile
       args:
         ALPINE_VERSION: ${ALPINE_VERSION}
-        TARGET_NODE_VERSION: ${NODE_VERSION}
-        TARGET_NPM_VERSION: ${NPM_VERSION}
+        NODE_VERSION: ${NODE_VERSION}
+        NPM_VERSION: ${NPM_VERSION}
         APP_CODE_PATH: ${APP_CODE_PATH_CONTAINER}
     container_name: node
     volumes:

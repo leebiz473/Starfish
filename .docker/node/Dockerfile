@@ -1,8 +1,12 @@
 ARG ALPINE_VERSION
 FROM alpine:${ALPINE_VERSION}
 
-## Install Node.js and npm
-RUN apk add --no-cache nodejs npm
+# Define build arguments for Node.js and npm versions
+ARG NODE_VERSION
+ARG NPM_VERSION
+
+# Install specific versions of Node.js and npm using the build arguments
+RUN apk add --no-cache nodejs-current=${NODE_VERSION} npm=${NPM_VERSION}
 
 ## Verify installation
 RUN node --version && npm --version
