@@ -80,8 +80,14 @@ RUN apk update && \
             php${PHP_VERSION}-zip \
             php${PHP_VERSION}-sodium \
             php${PHP_VERSION}-iconv \
-            php${PHP_VERSION}-intl
-
+            php${PHP_VERSION}-intl \
+            php${PHP_VERSION}-phar \
+            php${PHP_VERSION}-dom \
+            php${PHP_VERSION}-xmlwriter \
+            libxml2-dev
+#----------------------------------------------------------------
+# Install the PHP DOM extension (ext-dom)
+RUN apk add --no-cache php${PHP_VERSION}-dom
 
 ## Ensure CA certificates are up-to-date
 RUN update-ca-certificates
@@ -97,9 +103,23 @@ COPY ./.docker/php/conf.d/app-${APP_ENV}.ini  /usr/local/etc/php/conf.d/
 COPY ./.docker/php/.bashrc /home/${APP_USER_NAME}/.bashrc
 COPY ./.docker/php/.bashrc /root/.bashrc
 #----------------------------------------------------------------
+##
 WORKDIR $APP_CODE_PATH
-
-
+#----------------------------------------------------------------
 RUN apk add --no-cache --update \
         mysql-client \
         redis
+#----------------------------------------------------------------
+## Install necessary dependencies for Composer
+RUN apk add --no-cache \
+    curl \
+    bash \
+    git \
+    unzip
+#----------------------------------------------------------------
+## Download and install Composer
+RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+
+#----------------------------------------------------------------
+## Verify Composer installation
+RUN composer --version
