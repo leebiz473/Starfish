@@ -97,6 +97,24 @@ services:
 #    networks:
 #      - app-network
 
+  node:
+    build:
+      context: .
+      dockerfile: .docker/node/Dockerfile
+      args:
+        ALPINE_VERSION: "${ALPINE_VERSION}"
+        TARGET_NODE_VERSION: "${NODE_VERSION}"
+        TARGET_NPM_VERSION: "${NPM_VERSION}"
+    container_name: node
+    volumes:
+      - ${APP_CODE_PATH_HOST}:${APP_CODE_PATH_CONTAINER}
+    depends_on:
+      - php-fpm
+    networks:
+      app-network:
+    command: ["sh", "-c", "npm install && npm run dev"]
+
+
   mysql:
     build:
       context: .
