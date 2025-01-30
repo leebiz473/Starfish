@@ -1,6 +1,6 @@
 # define the network
 networks:
-  backend:
+  app-network:
     driver: ${NETWORKS_DRIVER}
 
 # start the services section
@@ -11,6 +11,7 @@ services:
       context: .
       dockerfile: .docker/nginx/Dockerfile
       args:
+        - NGINX_VERSION=1.21.5-alpine
         - APP_CODE_PATH=${APP_CODE_PATH_CONTAINER}
         - APP_GROUP=${APP_GROUP}
         - APP_GROUP_ID=${APP_GROUP_ID}
@@ -18,7 +19,7 @@ services:
         - APP_USER_ID=${APP_USER_ID}
         - TZ=${TIMEZONE}
         - DOMAIN_NAME=${DOMAIN_NAME} # Use the variable from the .env file
-    container_name: starfish-nginx
+    container_name: starfish_nginx
     tty: true
     env_file:
       - .env
@@ -28,25 +29,32 @@ services:
     volumes:
       - ${APP_CODE_PATH_HOST}:${APP_CODE_PATH_CONTAINER}
     networks:
-      backend:
+      app-network:
         aliases:
           - ${APP_HOST}
+    depends_on:
+      - php-fpm
+    links:
+      - php-fpm
 
   php:
     build:
       context: .
       dockerfile: .docker/php/Dockerfile
       args:
-        - ALPINE_VERSION=3.15
+        - ALPINE_VERSION=3.19
         - APP_CODE_PATH=${APP_CODE_PATH_CONTAINER?}
         - APP_GROUP_ID=${APP_GROUP_ID?}
         - APP_GROUP_NAME=${APP_GROUP_NAME?}
         - APP_USER_ID=${APP_USER_ID?}
-        - APP_USER_NAME=${APP_USER_NAME?}
+        - APP_USER_NAME=${APP_USER?}
         - TARGET_PHP_VERSION=${PHP_VERSION?}
         - APP_ENV=${APP_ENV?}
-    container_name: starfish-php
+    image: php-base:latest
+    container_name: starfish_php
     hostname: php
+    networks:
+      - app-network
 
   php-fpm:
     build:
@@ -54,42 +62,40 @@ services:
       dockerfile: .docker/php/fpm/Dockerfile
       args:
         - APP_CODE_PATH=${APP_CODE_PATH_CONTAINER}
-        - APP_GROUP=${APP_GROUP}
-        - APP_GROUP_ID=${APP_GROUP_ID}
-        - APP_USER=${APP_USER}
-        - APP_USER_ID=${APP_USER_ID}
-        - TZ=${TIMEZONE}
-        - TARGET_PHP_VERSION=${PHP_VERSION}
-    container_name: starfish-php-fpm
+        - APP_USER_NAME=${APP_USER_NAME}
+        - TARGET_PHP_VERSION=${PHP_VERSION?}
+    container_name: starfish_php_fpm
     hostname: php-fpm
-    volumes:
-      - ${APP_CODE_PATH_HOST}:${APP_CODE_PATH_CONTAINER}
-      - vendor_data:${APP_CODE_PATH_CONTAINER}/vendor
-    networks:
-      - backend
-    depends_on:
-      - mysql
-
-  app:
-    build:
-      context: .
-      dockerfile: .docker/php/app/Dockerfile
-      args:
-        - APP_CODE_PATH=${APP_CODE_PATH_CONTAINER}
-        - APP_GROUP=${APP_GROUP}
-        - APP_GROUP_ID=${APP_GROUP_ID}
-        - APP_USER=${APP_USER}
-        - APP_USER_ID=${APP_USER_ID}
-        - TZ=${TIMEZONE}
-        - TARGET_PHP_VERSION=${PHP_VERSION}
-    container_name: starfish-app
-    volumes:
-      - ${APP_CODE_PATH_HOST}:${APP_CODE_PATH_CONTAINER}
-      - vendor_data:${APP_CODE_PATH_CONTAINER}/vendor
     ports:
-      - "${WORKSPACE_HOST_SSH_PORT}:22"
+      - "9000:9000"
+    volumes:
+      - ${APP_CODE_PATH_HOST}:${APP_CODE_PATH_CONTAINER}
+      - vendor_data:${APP_CODE_PATH_CONTAINER}/vendor
     networks:
-      - backend
+      - app-network
+    depends_on:
+      - php
+
+#  app:
+#    build:
+#      context: .
+#      dockerfile: .docker/php/app/Dockerfile
+#      args:
+#        - APP_CODE_PATH=${APP_CODE_PATH_CONTAINER}
+#        - APP_GROUP=${APP_GROUP}
+#        - APP_GROUP_ID=${APP_GROUP_ID}
+#        - APP_USER=${APP_USER}
+#        - APP_USER_ID=${APP_USER_ID}
+#        - TZ=${TIMEZONE}
+#        - TARGET_PHP_VERSION=${PHP_VERSION}
+#    container_name: starfish_app
+#    volumes:
+#      - ${APP_CODE_PATH_HOST}:${APP_CODE_PATH_CONTAINER}
+#      - vendor_data:${APP_CODE_PATH_CONTAINER}/vendor
+#    ports:
+#      - "${WORKSPACE_HOST_SSH_PORT}:22"
+#    networks:
+#      - app-network
 
   mysql:
     build:
@@ -102,9 +108,13 @@ services:
       MYSQL_USER: app
       MYSQL_PASSWORD: root
       MYSQL_ROOT_PASSWORD: starfish
-    container_name: starfish-mysql
+    container_name: starfish_mysql
+    networks:
+      - app-network
     volumes:
       - db_data:/var/lib/mysql
+    depends_on:
+      - php-fpm
 
 volumes:
   vendor_data:
