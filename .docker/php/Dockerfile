@@ -116,3 +116,6 @@ RUN apk add --no-cache \
 #----------------------------------------------------------------
 ##
 WORKDIR $APP_CODE_PATH
+#----------------------------------------------------------------
+## @todo Set permissions for Laravel storage & cache
+#RUN chown -R www-app:www-app /var/www/app/storage /var/www/app/bootstrap/cache
