@@ -107,6 +107,8 @@ services:
         NPM_VERSION: ${NPM_VERSION}
         APP_CODE_PATH: ${APP_CODE_PATH_CONTAINER}
     container_name: node
+    ports:
+      - "5173:5173" # Expose Vite port
     volumes:
       - ${APP_CODE_PATH_HOST}:${APP_CODE_PATH_CONTAINER}
     depends_on:
