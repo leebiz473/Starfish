@@ -5,10 +5,10 @@
 
 # Retrieve the domain name from the environment variable
 DOMAIN=${DOMAIN_NAME}
-CERT_DIR="/etc/nginx/certs"
+CERT_DIR="/etc/ssl/certs"
 NGINX_CONF="/etc/nginx/conf.d/default.conf"
-KEY_FILE="${CERT_DIR}/${DOMAIN}.key"
-CERT_FILE="${CERT_DIR}/${DOMAIN}.crt"
+KEY_FILE="${CERT_DIR}/secret.${DOMAIN}.key"
+CERT_FILE="${CERT_DIR}/server.${DOMAIN}.crt"
 
 # Ensure DOMAIN_NAME variable is set and exists
 if [ -z "$DOMAIN" ]; then
