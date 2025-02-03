@@ -91,11 +91,15 @@ services:
       - "5173:5173" # Expose Vite port
     volumes:
       - ${APP_CODE_PATH_HOST}:${APP_CODE_PATH_CONTAINER}
+      - certs:/etc/ssl/certs
+    environment:
+      - CHOKIDAR_USEPOLLING=true
     depends_on:
+      - nginx
       - php-fpm
     networks:
       app-network:
-    command: ["sh", "-c", "npm install && npm run dev"]
+    command: ["sh", "-c", "npm install && tail -f /dev/null"]
 
 
   mysql:
@@ -121,4 +125,6 @@ volumes:
   vendor_data:
     driver: local
   db_data:
+    driver: local
+  certs:
     driver: local
