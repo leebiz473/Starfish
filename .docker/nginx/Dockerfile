@@ -28,10 +28,9 @@ COPY ./.docker/nginx/http-certificate.sh /usr/local/bin/http-certificate.sh
 #----------------------------------------------------------------
 ## Make the script executable
 RUN chmod +x /usr/local/bin/http-certificate.sh
-RUN /usr/local/bin/http-certificate.sh
 #----------------------------------------------------------------
 ## Cleanup build
-RUN /tmp/scripts/cleanup.sh && rm -rf /usr/local/bin/http-certificate.sh
+RUN /tmp/scripts/cleanup.sh
 #----------------------------------------------------------------
 ## Set working directory
 WORKDIR /etc/nginx/
@@ -39,4 +38,5 @@ WORKDIR /etc/nginx/
 ## Expose port 80 and 443 for nginx
 EXPOSE 80 443
 #----------------------------------------------------------------
-CMD ["nginx"]
+## Run the cert creation script and then start Nginx
+CMD ["/bin/sh", "-c", "/usr/local/bin/http-certificate.sh && nginx"]
