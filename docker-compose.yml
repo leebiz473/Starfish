@@ -106,8 +106,12 @@ services:
     build:
       context: .
       dockerfile: .docker/mysql/Dockerfile
-    ports:
-      - "3306:3306"
+      args:
+        MYSQL_DATABASE: ${MYSQL_DATABASE}
+        MYSQL_USER: ${MYSQL_USER}
+        MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+        MYSQL_CLIENT_USER: ${MYSQL_CLIENT_USER}
+        MYSQL_CLIENT_PASSWORD: ${MYSQL_CLIENT_PASSWORD}
     environment:
       MYSQL_DATABASE: ${MYSQL_DATABASE}
       MYSQL_USER: ${MYSQL_USER}
@@ -115,6 +119,8 @@ services:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
       MYSQL_CLIENT_USER: ${MYSQL_CLIENT_USER}
       MYSQL_CLIENT_PASSWORD: ${MYSQL_CLIENT_PASSWORD}
+    ports:
+      - "3306:3306"
     container_name: starfish_mysql
     networks:
       - app-network
