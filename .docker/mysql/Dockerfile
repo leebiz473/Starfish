@@ -17,13 +17,13 @@ ENV LANG=C.UTF-8 \
     MYSQL_CLIENT_PASSWORD=${MYSQL_CLIENT_PASSWORD}
 
 # Create a custom configuration directory inside the container
-#RUN mkdir -p /etc/mysql/conf.d
+RUN mkdir -p /etc/mysql/conf.d/
 
 # Copy a custom my.cnf configuration file to override default settings
-#COPY ./.docker/mysql/my.cnf /etc/mysql/conf.d/my.cnf
+COPY ./.docker/mysql/my.cnf /etc/mysql/conf.d/my.cnf
 
 # Copy the init script to the MySQL entrypoint directory (executed on first run)
-#COPY ./.docker/mysql/init.sql /docker-entrypoint-initdb.d/init.sql
+COPY ./.docker/mysql/init.sql /docker-entrypoint-initdb.d/init.sql
 
 # Change the ownership of the configuration and script directory for security
 #RUN chown -R mysql:mysql /etc/mysql/conf.d /docker-entrypoint-initdb.d
@@ -36,4 +36,4 @@ EXPOSE 3306
 ENTRYPOINT ["docker-entrypoint.sh"]
 
 # Default command to start MySQL
-CMD ["mysqld"]
+CMD ["mysqld", "--init-file=/docker-entrypoint-initdb.d/init.sql"]
