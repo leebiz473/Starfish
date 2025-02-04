@@ -37,6 +37,7 @@ services:
       - php-fpm
     links:
       - php-fpm
+      - smtp
 
   php:
     build:
@@ -133,6 +134,21 @@ services:
       options:
         max-size: "10m"
         max-file: "5"
+
+  smtp:
+    build:
+      context: .
+      dockerfile: .docker/smtp/mailhog/Dockerfile
+    hostname: mailhog
+    container_name: smtp_mailhog
+    logging:
+      driver: 'none'
+    ports:
+      - "8003:1025" # SMTP port
+      - "8100:8025" # Web UI for MailHog
+    networks:
+      - app-network
+    restart: always
 
 volumes:
   vendor_data:
