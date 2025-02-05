@@ -2,9 +2,10 @@
     "private": true,
     "type": "module",
     "scripts": {
-        "dev": "vite",
-        "start": "tsc && vite build",
-        "build": "tsc && vite build && vite build --ssr"
+        "dev": "vite dev",
+        "build": "vite build",
+        "build:ssr": "vite build --mode ssr",
+        "preview": "vite preview"
     },
     "devDependencies": {
         "@headlessui/react": "^1.4.2",
@@ -23,6 +24,7 @@
         "sass": "^1.83.4",
         "tailwindcss": "^3.2.1",
         "typescript": "^5.0.2",
-        "vite": "^5.0.0"
+        "vite": "^5.0.0",
+        "vite-tsconfig-paths": "^5.1.4"
     }
 }
