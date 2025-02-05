@@ -2,6 +2,7 @@ import { defineConfig, loadEnv } from 'vite';
 import laravel from 'laravel-vite-plugin';
 import react from '@vitejs/plugin-react';
 import tsconfigPaths from 'vite-tsconfig-paths';
+import copy from 'rollup-plugin-copy'
 import { resolve } from 'path';
 import * as fs from "node:fs";
 
@@ -43,7 +44,16 @@ export default defineConfig(({ mode }) => {
                 refresh: true, // Enables hot module replacement
             }),
             react(), // Enables React and JSX support
-            tsconfigPaths(), // Automatically resolves paths from tsconfig.json
+            // Automatically resolves paths from tsconfig.json
+            tsconfigPaths(), // @see https://github.com/aleclarson/vite-tsconfig-paths
+            // Copy assets after build
+            copy({ // @see https://github.com/vladshcherbin/rollup-plugin-copy
+                targets: [
+                    { src: 'public/build/.vite/manifest.json', dest: 'public' },
+                    { src: 'public/build/assets/app.js', dest: 'public/assets/js' },
+                    { src: 'public/build/assets/app.css', dest: 'public/assets/css' }
+                ]
+            }),
         ],
         resolve: {
             alias: {
@@ -102,8 +112,18 @@ export default defineConfig(({ mode }) => {
             ],
             external: ['http', 'process', 'fs'], // Marks Node.js built-in modules as external
         },
-        // optimizeDeps: {
-        //     include: ['react', 'react-dom', 'ziggy-js'],
-        // },
+        optimizeDeps: {
+            include: [
+                '@inertiajs/react',
+                '@inertiajs/core',
+                'react',
+                'react-dom',
+                'ziggy-js'
+            ],
+            exclude: [
+                'laravel-vite-plugin' // Laravel plugin should not be optimized
+            ],
+            entries: ['resources/js/app.tsx']
+        },
     };
 });
