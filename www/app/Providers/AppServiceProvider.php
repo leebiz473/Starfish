@@ -12,10 +12,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        // Force HTTP Secure
-//        if (false !== strpos(URL::current(), "https")) {
-//            URL::forceScheme('https');
-//        }
+        //
     }
 
     /**
