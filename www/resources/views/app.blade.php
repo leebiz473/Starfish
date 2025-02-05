@@ -12,19 +12,33 @@
 
         <!-- Scripts -->
         @routes
+        <?php use Illuminate\Support\Facades\URL; ?>
+        <?php $manifest = json_decode(file_get_contents(public_path('manifest.json')), true); ?>
+        <?php if($manifest): ?>
+        <script type="module" src="<?=asset('build/'.$manifest['resources/js/app.tsx']['file'])?>"></script>
+        <link rel="stylesheet" href="<?=asset('build/'.$manifest['resources/js/app.tsx']['css'][0])?>" />
+        <?php endif;?>
 
-        <?php if (strpos(\Illuminate\Support\Facades\URL::current(), "https") == false) : ?>
-        <?php $url = str_replace(['http:', 'https:'], '', env('APP_URL')) ?>
-            <script type="module">
-                import RefreshRuntime from '<?php echo $url ?>:5173/@react-refresh';
-                RefreshRuntime.injectIntoGlobalHook(window);
-                window.$RefreshReg$ = () => {};
-                window.$RefreshSig$ = () => (type) => type;
-                window.__vite_plugin_react_preamble_installed__ = true;
-            </script>
-            <script type="module" src="<?php echo $url ?>:5173/@@vite/client"></script>
-            <script type="module" src="<?php echo $url ?>:5173/resources/js/app.tsx"></script>
-            <script type="module" src="<?php echo $url ?>:5173/resources/js/Pages/<?php echo $page['component'] ?>.tsx"></script>
+
+
+
+        <?php if('production' !== strtolower(trim(env('APP_ENV')))): ?>
+            <?php if (strpos(URL::current(), "https") === false) : ?>
+            <?php $url = str_replace(['http:', 'https:'], '', env('APP_URL')) ?>
+                <script type="module">
+                    import RefreshRuntime from '<?php echo $url ?>:5173/@react-refresh';
+                    RefreshRuntime.injectIntoGlobalHook(window);
+                    window.$RefreshReg$ = () => {};
+                    window.$RefreshSig$ = () => (type) => type;
+                    window.__vite_plugin_react_preamble_installed__ = true;
+                </script>
+                <script type="module" src="<?php echo $url ?>:5173/@@vite/client"></script>
+                <script type="module" src="<?php echo $url ?>:5173/resources/js/app.tsx"></script>
+                <script type="module" src="<?php echo $url ?>:5173/resources/js/Pages/<?php echo $page['component'] ?>.tsx"></script>
+            <?php endif; ?>
+        <?php else: ?>
+            <link rel="stylesheet" href="<?php asset('assets/app.css') ?>">
+            <script type="module" src="<?php asset('assets/app.js') ?>" defer></script>
         <?php endif; ?>
 
     </head>
