@@ -1,26 +1,63 @@
 import { defineConfig, loadEnv } from 'vite';
 import laravel from 'laravel-vite-plugin';
 import react from '@vitejs/plugin-react';
+import tsconfigPaths from 'vite-tsconfig-paths';
+import { resolve } from 'path';
 import * as fs from "node:fs";
 
 
 export default defineConfig(({ mode }) => {
+
+    // Ensure fallback to 'development'
+    const envMode = mode === 'production' ? 'production' : 'development';
+
     // Load environment variables based on the current mode (development, production, etc.)
     const env = loadEnv(mode, process.cwd(), '');
     const date = new Date();
+    const DOMAIN_NAME = env.SERVER_DOMAIN;
 
-    console.log('DOMAIN_NAME:',  env.SERVER_DOMAIN);
-    console.log('Date:', `${date.toLocaleDateString()}, ${date.toLocaleTimeString()}`);
+    // Log build information
+    console.log(`\n🚀 Starting Vite Build`);
+    console.log(`🔹 Mode: ${envMode}`);
+    console.log(`🔹 Domain: ${DOMAIN_NAME}`);
+    console.log(`🔹 Date: ${date.toLocaleDateString()} ${date.toLocaleTimeString()}`);
+    console.log(`🔹 Node.js Version: ${process.version}`);
+    // console.log(`🔹 Vite Version: ${require('vite/package.json').version}`);
+    console.log(`🔹 VITE_DEV_SERVER_URL: ${env.VITE_DEV_SERVER_URL}`);
+    console.log(`🔹 TypeScript Support: ✅`);
+    console.log(`🔹 React + JSX Support: ✅`);
+    console.log(`🔹 SASS Support: ✅`);
+    console.log(`🔹 Ziggy.js Alias: ${resolve(__dirname, 'vendor/tightenco/ziggy/dist')}`);
+    console.log(`🔹 Minification: ${envMode === 'production' ? 'Enabled' : 'Disabled'}`);
+    console.log(`🔹 Source Maps: ${envMode === 'development' ? 'Enabled' : 'Disabled'}`);
+    console.log(`====================================\n`);
 
     return {
         plugins: [
             laravel({
-                input: 'resources/js/app.tsx',
-                ssr: 'resources/js/ssr.tsx',
-                refresh: true,
+                input: [
+                    'resources/js/app.tsx', // Main TypeScript entry point for React
+                    'resources/css/app.scss' // Main SASS entry point
+                ],
+                ssr: 'resources/js/ssr.tsx', // Define SSR entry point
+                refresh: true, // Enables hot module replacement
             }),
-            react(),
+            react(), // Enables React and JSX support
+            tsconfigPaths(), // Automatically resolves paths from tsconfig.json
         ],
+        resolve: {
+            alias: {
+                '@': resolve(__dirname, 'resources/js'), // Short alias for cleaner imports
+                ziggy: resolve(__dirname, 'vendor/tightenco/ziggy/dist'), // Ziggy alias
+            },
+        },
+        css: {
+            preprocessorOptions: {
+                scss: {
+                    //additionalData: `@import "resources/css/_variables.scss";`, // Example global SASS file
+                },
+            },
+        },
         server: {
             host: '0.0.0.0', // Allows Vite to be accessed from the Docker network
             port: 5173, // Default Vite port
@@ -35,11 +72,38 @@ export default defineConfig(({ mode }) => {
                 clientPort: 5173,
             },
             watch: {
-                usePolling: true
+                usePolling: true // Helps with Docker compatibility
             },
             cors: {
                 origin: env.APP_URL
             },
         },
+        build: {
+            target: 'esnext',
+            manifest: true, // Ensures manifest.json is generated
+            outDir: 'public/build', // Specify output directory
+            sourcemap: envMode === 'development', // Enable source maps only in development
+            minify: envMode === 'production' ? 'esbuild' : false, // Minify for production
+            rollupOptions: {
+                //input: 'resources/js/ssr.tsx', // Entry for SSR
+                output: {
+                    entryFileNames: 'assets/app.js', // Single JS output file
+                    chunkFileNames: 'assets/[name].js',
+                    assetFileNames: 'assets/[name][extname]',
+                },
+                external: ['http', 'process', 'fs'], // Avoid Rollup errors with built-in modules
+            },
+        },
+        ssr: {
+            noExternal: [ // Ensure packages are included in SSR bundle
+                '@inertiajs/react',
+                '@inertiajs/core',
+                'ziggy-js',
+            ],
+            external: ['http', 'process', 'fs'], // Marks Node.js built-in modules as external
+        },
+        // optimizeDeps: {
+        //     include: ['react', 'react-dom', 'ziggy-js'],
+        // },
     };
 });
