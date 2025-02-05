@@ -95,7 +95,10 @@ export default defineConfig(({ mode }) => {
             sourcemap: envMode === 'development', // Enable source maps only in development
             minify: envMode === 'production' ? 'esbuild' : false, // Minify for production
             rollupOptions: {
-                //input: 'resources/js/ssr.tsx', // Entry for SSR
+                input: {
+                    app: 'resources/js/app.tsx', // Main client-side entry point
+                    ssr: 'resources/js/ssr.tsx', // SSR entry point
+                },
                 output: {
                     entryFileNames: 'assets/app.js', // Single JS output file
                     chunkFileNames: 'assets/[name].js',
