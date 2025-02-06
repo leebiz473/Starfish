@@ -2,8 +2,10 @@
 
 namespace App\Providers;
 
+use App\Events\ResendEmailVerification;
 use App\Events\UserRegistered;
 use App\Listeners\UserHasRegistered;
+use App\Listeners\UserHasVerifiedEmailAddress;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
 
 class EventServiceProvider extends ServiceProvider
@@ -16,6 +18,9 @@ class EventServiceProvider extends ServiceProvider
     protected $listen = [
         UserRegistered::class => [
             UserHasRegistered::class,
+        ],
+        ResendEmailVerification::class => [
+            UserHasVerifiedEmailAddress::class
         ],
     ];
 
