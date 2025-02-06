@@ -37,7 +37,7 @@ class ProcessUserOnboarding implements ShouldQueue
     {
             try {
                 ProcessWelcomeEmail::dispatch($this->user);
-                ProcessEmailVerification::dispatch($this->user)->delay(now()->addSeconds(120));
+                ProcessEmailVerification::dispatch($this->user)->delay(now()->addSeconds(60));
             }  catch (Throwable $e) {
                 Log::error("ProcessUserOnboarding job failed: " . $e->getMessage(), [
                     'user_id' => $this->user->id,
