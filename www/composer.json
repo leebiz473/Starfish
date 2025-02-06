@@ -53,6 +53,9 @@
         ],
         "post-create-project-cmd": [
             "@php artisan key:generate --ansi"
+        ],
+        "process-all-jobs": [
+            "@php artisan queue:work database --queue=emails,default --tries=3 --sleep=3"
         ]
     },
     "extra": {
