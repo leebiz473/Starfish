@@ -123,6 +123,18 @@ services:
       app-network:
     command: ["sh", "-c", "npm install && tail -f /dev/null"]
 
+  redis:
+    build:
+      context: .
+      dockerfile: .docker/redis/Dockerfile
+    container_name: redis
+    hostname: redis
+    environment:
+      REDIS_PASSWORD: root
+    ports:
+      - "6379:6379"
+    networks:
+      - app-network
 
   mysql:
     build:
