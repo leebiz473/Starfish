@@ -72,7 +72,7 @@ services:
       - "9000:9000"
     volumes:
       - ${APP_CODE_PATH_HOST}:${APP_CODE_PATH_CONTAINER}
-      - vendor_data:${APP_CODE_PATH_CONTAINER}/vendor
+      - ${APP_CODE_PATH_HOST}/vendor:${APP_CODE_PATH_CONTAINER}/vendor
     networks:
       - app-network
     depends_on:
@@ -151,8 +151,6 @@ services:
     restart: always
 
 volumes:
-  vendor_data:
-    driver: local
   db_data:
     driver: local
   certs:
