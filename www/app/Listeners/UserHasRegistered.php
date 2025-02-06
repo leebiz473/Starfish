@@ -9,7 +9,7 @@ use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
 
-final class SendVerificationNotification extends SendEmailVerificationNotification
+final class UserHasRegistered extends SendEmailVerificationNotification implements ShouldQueue
 {
     /**
      * Handle the event.
@@ -19,6 +19,6 @@ final class SendVerificationNotification extends SendEmailVerificationNotificati
      */
     final public function handle(UserRegistered|Registered $event): void
     {
-        ProcessUserOnboarding::dispatch($event->user);
+        ProcessUserOnboarding::dispatch($event->user)->onQueue('emails');
     }
 }
