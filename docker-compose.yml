@@ -45,13 +45,13 @@ services:
       dockerfile: .docker/php/Dockerfile
       args:
         - ALPINE_VERSION=3.19
-        - APP_CODE_PATH=${APP_CODE_PATH_CONTAINER?}
-        - APP_GROUP_ID=${APP_GROUP_ID?}
-        - APP_GROUP_NAME=${APP_GROUP_NAME?}
-        - APP_USER_ID=${APP_USER_ID?}
-        - APP_USER_NAME=${APP_USER?}
-        - TARGET_PHP_VERSION=${PHP_VERSION?}
-        - APP_ENV=${APP_ENV?}
+        - APP_CODE_PATH=${APP_CODE_PATH_CONTAINER}
+        - APP_GROUP_ID=${APP_GROUP_ID}
+        - APP_GROUP_NAME=${APP_GROUP_NAME}
+        - APP_USER_ID=${APP_USER_ID}
+        - APP_USER_NAME=${APP_USER_NAME}
+        - TARGET_PHP_VERSION=${PHP_VERSION}
+        - APP_ENV=${APP_ENV}
     image: php-base:latest
     container_name: starfish_php
     hostname: php
