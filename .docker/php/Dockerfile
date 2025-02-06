@@ -36,12 +36,6 @@ RUN chmod -R 777 /tmp/scripts/ && chmod +x /tmp/scripts/
 ARG TZ=GMT
 RUN /tmp/scripts/set-timezone.sh ${TZ}
 #----------------------------------------------------------------
-## Add users
-ARG APP_USER=${APP_USER_NAME}
-ARG APP_GROUP=${APP_GROUP_NAME}
-ARG APP_USER_ID=${APP_USER_ID}
-ARG APP_GROUP_ID=${APP_GROUP_ID}
-#----------------------------------------------------------------
 ## Add user and groups, legacy, modern
 RUN addgroup -g $APP_GROUP_ID $APP_GROUP_NAME && \
     adduser -D -u $APP_USER_ID -s /bin/bash -G $APP_GROUP_NAME $APP_USER_NAME && \
