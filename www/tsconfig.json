@@ -1,0 +1,31 @@
+{
+    "compilerOptions": {
+        "allowJs": true, // Allows JavaScript files to be imported
+        "module": "ESNext",  // Uses the latest ES module system
+        "moduleResolution": "bundler", // Ensures correct resolution for Vite
+        "jsx": "react-jsx", // Enables React JSX transformation
+        "strict": true, // Enables strict type checking
+        "isolatedModules": true, // Prevents issues with transpiling
+        "target": "ESNext", // Uses latest ES features
+        "esModuleInterop": true, // Improves compatibility with CommonJS modules
+        "forceConsistentCasingInFileNames": true, // Prevents casing inconsistencies in imports
+        "noEmit": true, // Ensures no unnecessary output files
+        "skipLibCheck": true, // Speeds up compilation by skipping declaration file checks
+        "resolveJsonModule": true, // Allows importing JSON files
+        "baseUrl": "./", // Ensures paths are resolved correctly
+        "paths": {
+            "@/*": ["resources/js/*"], // Alias for cleaner imports
+            "ziggy-js": ["vendor/tightenco/ziggy/dist"] // Ensures Ziggy works with TypeScript
+        }
+    },
+    "include": [
+        "resources/js/**/*.ts",
+        "resources/js/**/*.tsx",
+        "resources/js/global.d.ts"
+    ],
+    "exclude": [
+        "node_modules",
+        "public/build",
+        "dist"
+    ]
+}

@@ -1,6 +1,6 @@
 # define the network
 networks:
-  backend:
+  app-network:
     driver: ${NETWORKS_DRIVER}
 
 # start the services section
@@ -11,6 +11,7 @@ services:
       context: .
       dockerfile: .docker/nginx/Dockerfile
       args:
+        - NGINX_VERSION=1.21.5-alpine
         - APP_CODE_PATH=${APP_CODE_PATH_CONTAINER}
         - APP_GROUP=${APP_GROUP}
         - APP_GROUP_ID=${APP_GROUP_ID}
@@ -18,7 +19,7 @@ services:
         - APP_USER_ID=${APP_USER_ID}
         - TZ=${TIMEZONE}
         - DOMAIN_NAME=${DOMAIN_NAME} # Use the variable from the .env file
-    container_name: starfish-nginx
+    container_name: starfish_nginx
     tty: true
     env_file:
       - .env
@@ -27,46 +28,163 @@ services:
       - "${NGINX_HOST_HTTPS_PORT}:443"
     volumes:
       - ${APP_CODE_PATH_HOST}:${APP_CODE_PATH_CONTAINER}
+      - certs:/etc/ssl/certs
     networks:
-      backend:
+      app-network:
         aliases:
           - ${APP_HOST}
+    depends_on:
+      - php-fpm
+    links:
+      - php-fpm
+      - smtp
 
   php:
+    build:
+      context: .
+      dockerfile: .docker/php/Dockerfile
+      args:
+        - ALPINE_VERSION=3.19
+        - APP_CODE_PATH=${APP_CODE_PATH_CONTAINER}
+        - APP_GROUP_ID=${APP_GROUP_ID}
+        - APP_GROUP_NAME=${APP_GROUP_NAME}
+        - APP_USER_ID=${APP_USER_ID}
+        - APP_USER_NAME=${APP_USER_NAME}
+        - TARGET_PHP_VERSION=${PHP_VERSION}
+        - APP_ENV=${APP_ENV}
+    image: php-base:latest
+    container_name: starfish_php
+    hostname: php
+    networks:
+      - app-network
+
+  php-fpm:
     build:
       context: .
       dockerfile: .docker/php/fpm/Dockerfile
       args:
         - APP_CODE_PATH=${APP_CODE_PATH_CONTAINER}
-        - APP_GROUP=${APP_GROUP}
-        - APP_GROUP_ID=${APP_GROUP_ID}
-        - APP_USER=${APP_USER}
-        - APP_USER_ID=${APP_USER_ID}
-        - TZ=${TIMEZONE}
+        - APP_USER_NAME=${APP_USER_NAME}
         - TARGET_PHP_VERSION=${PHP_VERSION}
-    container_name: starfish-php
-    hostname: php
+    image: php-fpm:latest
+    container_name: starfish_php_fpm
+    hostname: php-fpm
+    ports:
+      - "9000:9000"
     volumes:
       - ${APP_CODE_PATH_HOST}:${APP_CODE_PATH_CONTAINER}
+      - ${APP_CODE_PATH_HOST}/vendor:${APP_CODE_PATH_CONTAINER}/vendor:rw
     networks:
-      - backend
+      - app-network
+    depends_on:
+      - php
 
-  app:
+  php-worker:
     build:
       context: .
-      dockerfile: .docker/php/app/Dockerfile
+      dockerfile: .docker/php/supervisor/Dockerfile
       args:
         - APP_CODE_PATH=${APP_CODE_PATH_CONTAINER}
-        - APP_GROUP=${APP_GROUP}
-        - APP_GROUP_ID=${APP_GROUP_ID}
-        - APP_USER=${APP_USER}
-        - APP_USER_ID=${APP_USER_ID}
-        - TZ=${TIMEZONE}
+        - APP_USER_NAME=${APP_USER_NAME}
         - TARGET_PHP_VERSION=${PHP_VERSION}
-    container_name: starfish-app
+    container_name: starfish_php_worker
+    hostname: php-worker
     volumes:
       - ${APP_CODE_PATH_HOST}:${APP_CODE_PATH_CONTAINER}
-    ports:
-      - "${WORKSPACE_HOST_SSH_PORT}:22"
+      - ${APP_CODE_PATH_HOST}/vendor:${APP_CODE_PATH_CONTAINER}/vendor
     networks:
-      - backend
+      - app-network
+    depends_on:
+      - php-fpm
+      - mysql
+#    command: php artisan queue:work --tries=3
+
+  node:
+    build:
+      context: .
+      dockerfile: .docker/node/Dockerfile
+      args:
+        ALPINE_VERSION: ${ALPINE_VERSION}
+        NODE_VERSION: ${NODE_VERSION}
+        NPM_VERSION: ${NPM_VERSION}
+        APP_CODE_PATH: ${APP_CODE_PATH_CONTAINER}
+    container_name: node
+    ports:
+      - "5173:5173" # Expose Vite port
+    volumes:
+      - ${APP_CODE_PATH_HOST}:${APP_CODE_PATH_CONTAINER}
+      - certs:/etc/ssl/certs
+    environment:
+      - CHOKIDAR_USEPOLLING=true
+    depends_on:
+      - nginx
+      - php-fpm
+    networks:
+      app-network:
+    command: ["sh", "-c", "npm install && tail -f /dev/null"]
+
+  redis:
+    build:
+      context: .
+      dockerfile: .docker/redis/Dockerfile
+    container_name: redis
+    hostname: redis
+    environment:
+      REDIS_PASSWORD: root
+    ports:
+      - "6379:6379"
+    networks:
+      - app-network
+
+  mysql:
+    build:
+      context: .
+      dockerfile: .docker/mysql/Dockerfile
+      args:
+        MYSQL_DATABASE: ${MYSQL_DATABASE}
+        MYSQL_USER: ${MYSQL_USER}
+        MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+        MYSQL_CLIENT_USER: ${MYSQL_CLIENT_USER}
+        MYSQL_CLIENT_PASSWORD: ${MYSQL_CLIENT_PASSWORD}
+    environment:
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_CLIENT_USER: ${MYSQL_CLIENT_USER}
+      MYSQL_CLIENT_PASSWORD: ${MYSQL_CLIENT_PASSWORD}
+    ports:
+      - "3306:3306"
+    container_name: starfish_mysql
+    networks:
+      - app-network
+    volumes:
+      - db_data:/var/lib/mysql
+    depends_on:
+      - php-fpm
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "5"
+
+  smtp:
+    build:
+      context: .
+      dockerfile: .docker/smtp/mailhog/Dockerfile
+    hostname: mailhog
+    container_name: smtp_mailhog
+    logging:
+      driver: 'none'
+    ports:
+      - "8003:1025" # SMTP port
+      - "8100:8025" # Web UI for MailHog
+    networks:
+      - app-network
+    restart: always
+
+volumes:
+  db_data:
+    driver: local
+  certs:
+    driver: local
