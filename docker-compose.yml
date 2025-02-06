@@ -65,18 +65,39 @@ services:
       args:
         - APP_CODE_PATH=${APP_CODE_PATH_CONTAINER}
         - APP_USER_NAME=${APP_USER_NAME}
-        - TARGET_PHP_VERSION=${PHP_VERSION?}
+        - TARGET_PHP_VERSION=${PHP_VERSION}
+    image: php-fpm:latest
     container_name: starfish_php_fpm
     hostname: php-fpm
     ports:
       - "9000:9000"
     volumes:
       - ${APP_CODE_PATH_HOST}:${APP_CODE_PATH_CONTAINER}
-      - ${APP_CODE_PATH_HOST}/vendor:${APP_CODE_PATH_CONTAINER}/vendor
+      - ${APP_CODE_PATH_HOST}/vendor:${APP_CODE_PATH_CONTAINER}/vendor:rw
     networks:
       - app-network
     depends_on:
       - php
+
+  php-worker:
+    build:
+      context: .
+      dockerfile: .docker/php/supervisor/Dockerfile
+      args:
+        - APP_CODE_PATH=${APP_CODE_PATH_CONTAINER}
+        - APP_USER_NAME=${APP_USER_NAME}
+        - TARGET_PHP_VERSION=${PHP_VERSION}
+    container_name: starfish_php_worker
+    hostname: php-worker
+    volumes:
+      - ${APP_CODE_PATH_HOST}:${APP_CODE_PATH_CONTAINER}
+      - ${APP_CODE_PATH_HOST}/vendor:${APP_CODE_PATH_CONTAINER}/vendor
+    networks:
+      - app-network
+    depends_on:
+      - php-fpm
+      - mysql
+#    command: php artisan queue:work --tries=3
 
   node:
     build:
