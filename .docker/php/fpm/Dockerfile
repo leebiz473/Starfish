@@ -15,10 +15,10 @@ RUN apk add --no-cache  \
     pkgconfig \
     linux-headers \
     php${PHP_INSTALLED_VERSION}-dev \
-    php-pear \
-    php-fpm \
-    php-opcache \
-    php-redis; \
+    php${PHP_INSTALLED_VERSION}-pear \
+    php${PHP_INSTALLED_VERSION}-fpm \
+    php${PHP_INSTALLED_VERSION}-opcache \
+    php${PHP_INSTALLED_VERSION}-redis;
 #----------------------------------------------------------------
 ## Install xdebug
 RUN pecl install xdebug;
