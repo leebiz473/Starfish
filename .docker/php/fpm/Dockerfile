@@ -8,19 +8,24 @@ ENV PATH="/usr/local/bin:${PATH}"
 COPY --from=php-base /usr/local/etc/php /usr/local/etc/php
 #----------------------------------------------------------------
 ## Install PHP-FPM and other necessary runtime dependencies
-#RUN apk add --no-cache  \
-#    php${PHP_VERSION/-/\.}-fpm \
-#    php${PHP_VERSION/-/\.}-opcache \
-#    php${PHP_VERSION/-/\.}-redis \
-#    php${PHP_VERSION/-/\.}-xdebug;
 RUN apk add --no-cache  \
+    gcc \
+    make \
+    libc-dev \
+    pkgconfig \
+    linux-headers \
+    php${PHP_INSTALLED_VERSION}-dev \
+    php-pear \
     php-fpm \
     php-opcache \
-    php-redis \
-    php-xdebug;
+    php-redis; \
+#----------------------------------------------------------------
+## Install xdebug
+RUN pecl install xdebug;
 #----------------------------------------------------------------
 ## Add PHP-FPM pool configuration
-COPY ./.docker/php/fpm/conf.d/www.conf  /etc/php82/php-fpm.d/www.conf
+COPY ./.docker/php/fpm/conf.d/www.conf /etc/php82/php-fpm.d/www.conf
+COPY ./.docker/php/conf.d/xdebug.ini /etc/php82/conf.d/50_xdebug.ini
 #----------------------------------------------------------------
 ## Set working directory (as root initially)
 WORKDIR $APP_CODE_PATH
@@ -49,5 +54,7 @@ RUN chmod -R 775 ${APP_CODE_PATH}/vendor
 #----------------------------------------------------------------
 # Expose port 9000 for PHP-FPM
 EXPOSE 9000
+
+USER root
 #----------------------------------------------------------------
 CMD ["/usr/sbin/php-fpm82", "-F"]
