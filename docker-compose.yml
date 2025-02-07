@@ -71,6 +71,7 @@ services:
     hostname: php-fpm
     ports:
       - "9000:9000"
+      - "9003:9003" # Expose the Xdebug port
     volumes:
       - ${APP_CODE_PATH_HOST}:${APP_CODE_PATH_CONTAINER}
       - ${APP_CODE_PATH_HOST}/vendor:${APP_CODE_PATH_CONTAINER}/vendor:rw
