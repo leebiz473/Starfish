@@ -1,51 +1,68 @@
-import GuestLayout from '@/Layouts/GuestLayout';
-import InputError from '@/Components/InputError';
+import { useForm, Head } from '@inertiajs/react';
+import classNames from 'classnames';
+import React from 'react';
+import useRoute from '@/Hooks/useRoute';
+import AuthenticationCard from '@/Components/AuthenticationCard';
+import InputLabel from '@/Components/InputLabel';
 import PrimaryButton from '@/Components/PrimaryButton';
 import TextInput from '@/Components/TextInput';
-import { Head, useForm } from '@inertiajs/react';
-import { FormEventHandler } from 'react';
+import InputError from '@/Components/InputError';
 
-export default function ForgotPassword({ status }: { status?: string }) {
-    const { data, setData, post, processing, errors } = useForm({
-        email: '',
-    });
+interface Props {
+  status: string;
+}
 
-    const submit: FormEventHandler = (e) => {
-        e.preventDefault();
+export default function ForgotPassword({ status }: Props) {
+  const route = useRoute();
+  const form = useForm({
+    email: '',
+  });
 
-        post(route('password.email'));
-    };
+  function onSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    form.post(route('password.email'));
+  }
 
-    return (
-        <GuestLayout>
-            <Head title="Forgot Password" />
+  return (
+    <AuthenticationCard>
+      <Head title="Forgot Password" />
 
-            <div className="mb-4 text-sm text-gray-600 dark:text-gray-400">
-                Forgot your password? No problem. Just let us know your email address and we will email you a password
-                reset link that will allow you to choose a new one.
-            </div>
+      <div className="mb-4 text-sm text-gray-600 dark:text-gray-400">
+        Forgot your password? No problem. Just let us know your email address
+        and we will email you a password reset link that will allow you to
+        choose a new one.
+      </div>
 
-            {status && <div className="mb-4 font-medium text-sm text-green-600 dark:text-green-400">{status}</div>}
+      {status && (
+        <div className="mb-4 font-medium text-sm text-green-600 dark:text-green-400">
+          {status}
+        </div>
+      )}
 
-            <form onSubmit={submit}>
-                <TextInput
-                    id="email"
-                    type="email"
-                    name="email"
-                    value={data.email}
-                    className="mt-1 block w-full"
-                    isFocused={true}
-                    onChange={(e) => setData('email', e.target.value)}
-                />
+      <form onSubmit={onSubmit}>
+        <div>
+          <InputLabel htmlFor="email">Email</InputLabel>
+          <TextInput
+            id="email"
+            type="email"
+            className="mt-1 block w-full"
+            value={form.data.email}
+            onChange={e => form.setData('email', e.currentTarget.value)}
+            required
+            autoFocus
+          />
+          <InputError className="mt-2" message={form.errors.email} />
+        </div>
 
-                <InputError message={errors.email} className="mt-2" />
-
-                <div className="flex items-center justify-end mt-4">
-                    <PrimaryButton className="ms-4" disabled={processing}>
-                        Email Password Reset Link
-                    </PrimaryButton>
-                </div>
-            </form>
-        </GuestLayout>
-    );
+        <div className="flex items-center justify-end mt-4">
+          <PrimaryButton
+            className={classNames({ 'opacity-25': form.processing })}
+            disabled={form.processing}
+          >
+            Email Password Reset Link
+          </PrimaryButton>
+        </div>
+      </form>
+    </AuthenticationCard>
+  );
 }

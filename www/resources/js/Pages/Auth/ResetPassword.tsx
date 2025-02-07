@@ -1,90 +1,97 @@
-import { useEffect, FormEventHandler } from 'react';
-import GuestLayout from '@/Layouts/GuestLayout';
-import InputError from '@/Components/InputError';
+import { useForm, Head } from '@inertiajs/react';
+import classNames from 'classnames';
+import React from 'react';
+import useRoute from '@/Hooks/useRoute';
+import AuthenticationCard from '@/Components/AuthenticationCard';
 import InputLabel from '@/Components/InputLabel';
 import PrimaryButton from '@/Components/PrimaryButton';
 import TextInput from '@/Components/TextInput';
-import { Head, useForm } from '@inertiajs/react';
+import InputError from '@/Components/InputError';
 
-export default function ResetPassword({ token, email }: { token: string, email: string }) {
-    const { data, setData, post, processing, errors, reset } = useForm({
-        token: token,
-        email: email,
-        password: '',
-        password_confirmation: '',
+interface Props {
+  token: string;
+  email: string;
+}
+
+export default function ResetPassword({ token, email }: Props) {
+  const route = useRoute();
+  const form = useForm({
+    token,
+    email,
+    password: '',
+    password_confirmation: '',
+  });
+
+  function onSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    form.post(route('password.update'), {
+      onFinish: () => form.reset('password', 'password_confirmation'),
     });
+  }
 
-    useEffect(() => {
-        return () => {
-            reset('password', 'password_confirmation');
-        };
-    }, []);
+  return (
+    <AuthenticationCard>
+      <Head title="Reset Password" />
 
-    const submit: FormEventHandler = (e) => {
-        e.preventDefault();
+      <form onSubmit={onSubmit}>
+        <div>
+          <InputLabel htmlFor="email">Email</InputLabel>
+          <TextInput
+            id="email"
+            type="email"
+            className="mt-1 block w-full"
+            value={form.data.email}
+            onChange={e => form.setData('email', e.currentTarget.value)}
+            required
+            autoFocus
+          />
+          <InputError className="mt-2" message={form.errors.email} />
+        </div>
 
-        post(route('password.store'));
-    };
+        <div className="mt-4">
+          <InputLabel htmlFor="password">Password</InputLabel>
+          <TextInput
+            id="password"
+            type="password"
+            className="mt-1 block w-full"
+            value={form.data.password}
+            onChange={e => form.setData('password', e.currentTarget.value)}
+            required
+            autoComplete="new-password"
+          />
+          <InputError className="mt-2" message={form.errors.password} />
+        </div>
 
-    return (
-        <GuestLayout>
-            <Head title="Reset Password" />
+        <div className="mt-4">
+          <InputLabel htmlFor="password_confirmation">
+            Confirm Password
+          </InputLabel>
+          <TextInput
+            id="password_confirmation"
+            type="password"
+            className="mt-1 block w-full"
+            value={form.data.password_confirmation}
+            onChange={e =>
+              form.setData('password_confirmation', e.currentTarget.value)
+            }
+            required
+            autoComplete="new-password"
+          />
+          <InputError
+            className="mt-2"
+            message={form.errors.password_confirmation}
+          />
+        </div>
 
-            <form onSubmit={submit}>
-                <div>
-                    <InputLabel htmlFor="email" value="Email" />
-
-                    <TextInput
-                        id="email"
-                        type="email"
-                        name="email"
-                        value={data.email}
-                        className="mt-1 block w-full"
-                        autoComplete="username"
-                        onChange={(e) => setData('email', e.target.value)}
-                    />
-
-                    <InputError message={errors.email} className="mt-2" />
-                </div>
-
-                <div className="mt-4">
-                    <InputLabel htmlFor="password" value="Password" />
-
-                    <TextInput
-                        id="password"
-                        type="password"
-                        name="password"
-                        value={data.password}
-                        className="mt-1 block w-full"
-                        autoComplete="new-password"
-                        isFocused={true}
-                        onChange={(e) => setData('password', e.target.value)}
-                    />
-
-                    <InputError message={errors.password} className="mt-2" />
-                </div>
-
-                <div className="mt-4">
-                    <InputLabel htmlFor="password_confirmation" value="Confirm Password" />
-
-                    <TextInput
-                        type="password"
-                        name="password_confirmation"
-                        value={data.password_confirmation}
-                        className="mt-1 block w-full"
-                        autoComplete="new-password"
-                        onChange={(e) => setData('password_confirmation', e.target.value)}
-                    />
-
-                    <InputError message={errors.password_confirmation} className="mt-2" />
-                </div>
-
-                <div className="flex items-center justify-end mt-4">
-                    <PrimaryButton className="ms-4" disabled={processing}>
-                        Reset Password
-                    </PrimaryButton>
-                </div>
-            </form>
-        </GuestLayout>
-    );
+        <div className="flex items-center justify-end mt-4">
+          <PrimaryButton
+            className={classNames({ 'opacity-25': form.processing })}
+            disabled={form.processing}
+          >
+            Reset Password
+          </PrimaryButton>
+        </div>
+      </form>
+    </AuthenticationCard>
+  );
 }
