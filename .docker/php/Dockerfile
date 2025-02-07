@@ -41,14 +41,11 @@ RUN addgroup -g $APP_GROUP_ID $APP_GROUP_NAME && \
     adduser -D -u $APP_USER_ID -s /bin/bash -G $APP_GROUP_NAME $APP_USER_NAME && \
     install -d -m 755 -o $APP_USER_NAME -g $APP_GROUP_NAME $APP_CODE_PATH
 #----------------------------------------------------------------
-## Process and store a new environment variable without the dot
-## Create a new argument without the dot
-ARG PHP_VERSION
-RUN PHP_VERSION=$(echo ${TARGET_PHP_VERSION} | sed 's/\.//g') && \
-    echo "PHP_VERSION=${PHP_VERSION}" >> /etc/environment
-#----------------------------------------------------------------
 ## Set PHP_VERSION as an environment variable
-ENV PHP_VERSION=${PHP_VERSION}
+ENV PHP_VERSION=${TARGET_PHP_VERSION}
+#----------------------------------------------------------------
+## Create a new argument without the dot
+ENV PHP_INSTALLED_VERSION=${TARGET_PHP_VERSION//./}
 #----------------------------------------------------------------
 ## Install necessary system dependencies, including ca-certificates for HTTPS
 RUN apk update && \
@@ -57,32 +54,29 @@ RUN apk update && \
             make \
             vim  \
             ca-certificates  \
-            php${PHP_VERSION} \
-            php${PHP_VERSION}-cli \
-            php${PHP_VERSION}-session \
-            php${PHP_VERSION}-mbstring \
-            php${PHP_VERSION}-pdo \
-            php${PHP_VERSION}-pdo_mysql \
-            php${PHP_VERSION}-tokenizer \
-            php${PHP_VERSION}-xml \
-            php${PHP_VERSION}-ctype \
-            php${PHP_VERSION}-json \
-            php${PHP_VERSION}-openssl \
-            php${PHP_VERSION}-fileinfo \
-            php${PHP_VERSION}-bcmath \
-            php${PHP_VERSION}-curl \
-            php${PHP_VERSION}-zip \
-            php${PHP_VERSION}-sodium \
-            php${PHP_VERSION}-iconv \
-            php${PHP_VERSION}-intl \
-            php${PHP_VERSION}-phar \
-            php${PHP_VERSION}-dom \
-            php${PHP_VERSION}-xmlwriter \
-            libxml2-dev
+            php${PHP_INSTALLED_VERSION} \
+            php${PHP_INSTALLED_VERSION}-cli \
+            php${PHP_INSTALLED_VERSION}-session \
+            php${PHP_INSTALLED_VERSION}-mbstring \
+            php${PHP_INSTALLED_VERSION}-pdo \
+            php${PHP_INSTALLED_VERSION}-pdo_mysql \
+            php${PHP_INSTALLED_VERSION}-tokenizer \
+            php${PHP_INSTALLED_VERSION}-xml \
+            php${PHP_INSTALLED_VERSION}-ctype \
+            php${PHP_INSTALLED_VERSION}-json \
+            php${PHP_INSTALLED_VERSION}-openssl \
+            php${PHP_INSTALLED_VERSION}-fileinfo \
+            php${PHP_INSTALLED_VERSION}-bcmath \
+            php${PHP_INSTALLED_VERSION}-curl \
+            php${PHP_INSTALLED_VERSION}-zip \
+            php${PHP_INSTALLED_VERSION}-sodium \
+            php${PHP_INSTALLED_VERSION}-iconv \
+            php${PHP_INSTALLED_VERSION}-intl \
+            php${PHP_INSTALLED_VERSION}-phar \
+            php${PHP_INSTALLED_VERSION}-dom \
+            php${PHP_INSTALLED_VERSION}-xmlwriter \
+            libxml2-dev;
 #----------------------------------------------------------------
-# Install the PHP DOM extension (ext-dom)
-RUN apk add --no-cache php${PHP_VERSION}-dom
-
 ## Ensure CA certificates are up-to-date
 RUN update-ca-certificates
 #----------------------------------------------------------------
