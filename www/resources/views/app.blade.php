@@ -12,15 +12,14 @@
 
     <!-- Scripts -->
     @routes
-    <?php use Illuminate\Support\Facades\URL; ?>
+    @viteReactRefresh
+    @vite(['resources/js/app.tsx', "resources/js/Pages/{$page['component']}.tsx"])
+    @inertiaHead
     <?php $manifest = json_decode(file_get_contents(public_path('manifest.json')), true); ?>
-    <?php if($manifest): ?>
-<!--        <script type="module" src="--><?php //=asset('build/'.$manifest['resources/js/app.tsx']['file'])?><!--"></script>-->
-<!--        <link rel="stylesheet" href="--><?php //=asset('build/'.$manifest['resources/js/app.tsx']['css'][0])?><!--" />-->
+    <?php if(false): ?>
+        <script type="module" src="--><?php //=asset('build/'.$manifest['resources/js/app.tsx']['file'])?><!--"></script>
+        <link rel="stylesheet" href="--><?php //=asset('build/'.$manifest['resources/js/app.tsx']['css'][0])?><!--" />
     <?php endif;?>
-
-
-
 
     <?php if(false === app()->environment('production')): ?>
         <?php $url = str_replace(['http:', 'https:'], '', env('APP_URL')) ?>
