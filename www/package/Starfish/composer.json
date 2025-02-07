@@ -1,0 +1,40 @@
+{
+    "name": "starfish/envx",
+    "description": "A package template",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Guy Fisher",
+            "email": "guyfisher@envx.com"
+        }
+    ],
+    "require": {
+        "php": ">=8.0",
+        "illuminate/support": "^10.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Starfish\\EnvX\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Starfish\\EnvX\\Tests\\": "tests/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Starfish\\Envx\\PackageServiceProvider"
+            ]
+        }
+    },
+    "scripts": {
+        "test": "vendor/bin/phpunit"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^10.5",
+        "orchestra/testbench": "^8.31"
+    }
+}
