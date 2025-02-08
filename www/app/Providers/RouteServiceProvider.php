@@ -117,7 +117,7 @@ class RouteServiceProvider extends ServiceProvider
             });
 
 
-            Route::middleware([])->group(base_path('routes/dev.php'));
+            Route::middleware([])->prefix('dev')->group(base_path('routes/dev.php'));
         });
     }
 }
