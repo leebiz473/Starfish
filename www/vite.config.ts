@@ -49,7 +49,7 @@ export default defineConfig(({ mode }) => {
             // Copy assets after build
             copy({ // @see https://github.com/vladshcherbin/rollup-plugin-copy
                 targets: [
-                    { src: 'public/build/.vite/manifest.json', dest: 'public' },
+                    { src: 'public/build/.vite/manifest.json', dest: 'public/build' },
                     { src: 'public/build/assets/app.js', dest: 'public/assets/js' },
                     { src: 'public/build/assets/app.css', dest: 'public/assets/css' }
                 ]
