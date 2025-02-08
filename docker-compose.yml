@@ -66,6 +66,8 @@ services:
         - APP_CODE_PATH=${APP_CODE_PATH_CONTAINER}
         - APP_USER_NAME=${APP_USER_NAME}
         - TARGET_PHP_VERSION=${PHP_VERSION}
+    environment:
+      PHP_IDE_CONFIG: serverName=${DOMAIN_NAME}
     image: php-fpm:latest
     container_name: starfish_php_fpm
     hostname: php-fpm
