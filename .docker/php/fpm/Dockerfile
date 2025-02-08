@@ -55,6 +55,5 @@ RUN chmod -R 775 ${APP_CODE_PATH}/vendor
 # Expose port 9000 for PHP-FPM
 EXPOSE 9000
 
-USER root
 #----------------------------------------------------------------
 CMD ["/usr/sbin/php-fpm82", "-F"]
