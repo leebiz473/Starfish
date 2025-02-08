@@ -116,8 +116,9 @@ class RouteServiceProvider extends ServiceProvider
                 });
             });
 
-
-            Route::middleware([])->prefix('dev')->group(base_path('routes/dev.php'));
+            if(false === app()->environment('production')){
+                Route::middleware([])->prefix('dev')->group(base_path('routes/dev.php'));
+            }
         });
     }
 }
