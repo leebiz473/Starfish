@@ -21,7 +21,8 @@ RUN apk add --no-cache  \
     php${PHP_INSTALLED_VERSION}-redis;
 #----------------------------------------------------------------
 ## Install xdebug
-RUN pecl install xdebug;
+RUN pecl install xdebug \
+    docker-php-ext-enable xdebug
 #----------------------------------------------------------------
 ## Add PHP-FPM pool configuration
 COPY ./.docker/php/fpm/conf.d/www.conf /etc/php82/php-fpm.d/www.conf
