@@ -16,11 +16,13 @@ export default defineConfig(({ mode }) => {
     const env = loadEnv(mode, process.cwd(), '');
     const date = new Date();
     const DOMAIN_NAME = env.SERVER_DOMAIN;
+    const APP_URL = env.APP_URL;
 
     // Log build information
     console.log(`\n🚀 Starting Vite Build`);
     console.log(`🔹 Mode: ${envMode}`);
     console.log(`🔹 Domain: ${DOMAIN_NAME}`);
+    console.log(`🔹 APP_URL: ${APP_URL}`);
     console.log(`🔹 Date: ${date.toLocaleDateString()} ${date.toLocaleTimeString()}`);
     console.log(`🔹 Node.js Version: ${process.version}`);
     // console.log(`🔹 Vite Version: ${require('vite/package.json').version}`);
@@ -85,8 +87,17 @@ export default defineConfig(({ mode }) => {
                 usePolling: true // Helps with Docker compatibility
             },
             cors: {
-                origin: env.APP_URL
+                origin: '*',
+                methods: ['GET', 'POST', 'PUT', 'DELETE'],
+                allowedHeaders: ['Content-Type'],
+                credentials: true,
             },
+            headers: {
+                'Access-Control-Allow-Origin': '*', // Allow all origins or specify your frontend domain
+                'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+                'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+                'Access-Control-Allow-Credentials': 'true'
+            }
         },
         build: {
             target: 'esnext',
